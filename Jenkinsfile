@@ -1,0 +1,33 @@
+pipeline {
+    agent { label 'slave' }
+    stages {
+        stage('Setup') {
+            steps {
+                git branch: 'main', credentialsId: 'Github', url: 'https://github.com/sharara99/flask_dockerApp.git'
+            }
+        }
+        
+        stage('Build') {
+            steps {
+                script {
+                    sh "docker build -t sharara99/flask-app-pipeline:${BUILD_NUMBER} ."
+                    
+                    withCredentials([usernamePassword(credentialsId: 'DockerHub', passwordVariable: 'DOCKER_PASS', usernameVariable: 'DOCKER_USER')]) {
+                        sh "docker login -u $DOCKER_USER -p $DOCKER_PASS"
+                    }
+                    
+                    sh "docker push sharara99/flask-app-pipeline:${BUILD_NUMBER}"
+                }
+            }
+        }
+        
+        stage('Deploy') {
+            steps {
+                script {
+                    echo "Deploying on Kubernetes..."
+                    sh "kubectl apply -f flask-pod.yml"
+                }
+            }
+        }
+    }
+}
