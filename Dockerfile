@@ -4,6 +4,6 @@ RUN pip install flask flask-mysql
 
 COPY . .
 
-EXPOSE 5000
+EXPOSE 6000
 
-CMD ["flask", "run", "--host=0.0.0.0", "--port=5000"]
+CMD ["flask", "run", "--host=0.0.0.0", "--port=6000"]
